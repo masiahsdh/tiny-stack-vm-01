@@ -20,11 +20,12 @@ function execute(prog: Uint8Array, input: Uint8Array): Outcome {
   let pc = 0;
   let readAt = 0;
   let steps = 0;
+  const progLen = prog.length;
   const fail = (code: number): Outcome => ({ bytes, code });
 
   for (;;) {
     if (steps >= 1000000) return fail(10);
-    if (pc < 0 || pc >= prog.length) return fail(9);
+    if (pc < 0 || pc >= progLen) return fail(9);
     const op = prog[pc];
     const isBin = op >= 0x10 && op <= 0x22 && op !== 0x17 && op !== 0x1b && op !== 0x1f;
     const known =
@@ -36,7 +37,7 @@ function execute(prog: Uint8Array, input: Uint8Array): Outcome {
     if (op === 0x01) imm = 1;
     else if (op === 0x02) imm = 4;
     else if (op >= 0x30 && op <= 0x33) imm = 2;
-    if (pc + 1 + imm > prog.length) return fail(9);
+    if (pc + 1 + imm > progLen) return fail(9);
 
     // Stack bookkeeping first: how many values this opcode pops, and the net
     // change in depth once it has run. Underflow and overflow trap before it.
